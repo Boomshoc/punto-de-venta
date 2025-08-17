@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Pedidos - Restaurante</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-cash-register"></i> Punto de Venta</h1>
+            <div class="mesa-selector">
+                <label for="mesa">Mesa #:</label>
+                <select id="mesa">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-categoria="comidas">Comidas</button>
+            <button class="tab" data-categoria="bebidas">Bebidas</button>
+            <button class="tab" data-categoria="postres">Postres</button>
+            <button class="tab" data-categoria="especiales">Especiales</button>
+        </div>
+
+        <div class="tab-container">
+            <div id="comidas" class="tab-content" style="display:block;"></div>
+            <div id="bebidas" class="tab-content"></div>
+            <div id="postres" class="tab-content"></div>
+            <div id="especiales" class="tab-content"></div>
+        </div>
+
+        <div class="carrito">
+            <h2><i class="fas fa-receipt"></i> Pedido Actual</h2>
+            <div class="info-mesa">Mesa: <span id="numero-mesa">1</span></div>
+            <ul id="lista-pedido"></ul>
+            <div class="total">Total: $<span id="total">0.00</span></div>
+            <div class="acciones-carrito">
+            <div class="form-group">
+            <div class="form-group">
+            <label for="observacion">Observación del pedido:</label>
+            <textarea id="observacion" rows="2" placeholder="Ej. Sin cebolla, extra queso..."></textarea>
+            </div>
+
+
+                <button class="btn-enviar" id="btn-enviar">Enviar a Cocina</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module" src="database.js"></script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
