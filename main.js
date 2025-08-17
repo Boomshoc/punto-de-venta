@@ -134,7 +134,7 @@ async function enviarPedido() {
     const user = firebase.auth().currentUser;
     if (!user) {
         alert("Debes iniciar sesión para enviar pedidos");
-        window.location.href = "login.html";
+        window.location.href = "index.html";
         return;
     }
 

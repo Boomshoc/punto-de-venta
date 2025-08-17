@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     onAuthStateChanged(async (user) => {
         if (!user) {
-            window.location.href = "login.html";
+            window.location.href = "index.html";
             return;
         }
 
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnLogout.addEventListener('click', async () => {
         try {
             await logout();
-            window.location.href = "login.html";
+            window.location.href = "index.html";
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
             showMessage('Error al cerrar sesión', 'error');

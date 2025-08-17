@@ -25,14 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Verificar autenticación y rol
     onAuthStateChanged(async (user) => {
         if (!user) {
-            window.location.href = "login.html";
+            window.location.href = "index.html";
             return;
         }
 
         if (typeof user.rol !== 'string' || user.rol.toLowerCase() !== 'admin') {
             alert("Acceso denegado. Este panel es solo para administradores.");
             await logout();
-            window.location.href = "login.html";
+            window.location.href = "index.html";
             return;
         }
 
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cierre de sesión
     btnLogout.addEventListener("click", async () => {
         await logout();
-        window.location.href = "login.html";
+        window.location.href = "index.html";
     });
 
     // Crear nuevo usuario

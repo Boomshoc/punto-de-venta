@@ -1,72 +1,262 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Pedidos - Restaurante</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login General</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-cash-register"></i> Punto de Venta</h1>
-            <div class="mesa-selector">
-                <label for="mesa">Mesa #:</label>
-                <select id="mesa">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                </select>
-            </div>
-        </header>
+  <div class="login-container">
+    <h2>Iniciar Sesión</h2>
+    <input type="email" id="email" placeholder="Correo" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <button id="login-btn">Entrar</button>
+    <p id="error-msg" style="color: red;"></p>
+  </div>
 
-        <div class="tabs">
-            <button class="tab active" data-categoria="comidas">Comidas</button>
-            <button class="tab" data-categoria="bebidas">Bebidas</button>
-            <button class="tab" data-categoria="postres">Postres</button>
-            <button class="tab" data-categoria="especiales">Especiales</button>
-        </div>
+  <script>
+    // Configuración Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAEtqFKGfLqfkBu8VbrM5_VzydedzPIynU",
+      authDomain: "activa-firestore-database.firebaseapp.com",
+      projectId: "activa-firestore-database",
+      storageBucket: "activa-firestore-database.appspot.com",
+      messagingSenderId: "804240087130",
+      appId: "1:804240087130:web:75477bf4ebf648eb1fe063"
+    };
 
-        <div class="tab-container">
-            <div id="comidas" class="tab-content" style="display:block;"></div>
-            <div id="bebidas" class="tab-content"></div>
-            <div id="postres" class="tab-content"></div>
-            <div id="especiales" class="tab-content"></div>
-        </div>
+    // Inicializar Firebase
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const auth = firebase.auth();
+      const db = firebase.firestore();
 
-        <div class="carrito">
-            <h2><i class="fas fa-receipt"></i> Pedido Actual</h2>
-            <div class="info-mesa">Mesa: <span id="numero-mesa">1</span></div>
-            <ul id="lista-pedido"></ul>
-            <div class="total">Total: $<span id="total">0.00</span></div>
-            <div class="acciones-carrito">
-            <div class="form-group">
-            <div class="form-group">
-            <label for="observacion">Observación del pedido:</label>
-            <textarea id="observacion" rows="2" placeholder="Ej. Sin cebolla, extra queso..."></textarea>
-            </div>
+      // Configurar tiempo de espera para autenticación (15 segundos)
+      auth.settings.timeout = 15000;
 
+      // Función auxiliar para crear promesas de timeout
+      function createTimeoutPromise(message, time) {
+        return new Promise((_, reject) => {
+          setTimeout(() => reject(new Error(message)), time);
+        });
+      }
 
-                <button class="btn-enviar" id="btn-enviar">Enviar a Cocina</button>
-            </div>
-        </div>
-    </div>
+      document.getElementById('login-btn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const errorMsg = document.getElementById('error-msg');
+        const loginBtn = document.getElementById('login-btn');
+        
+        // Validación básica
+        if (!email || !password) {
+          errorMsg.textContent = 'Por favor completa todos los campos';
+          errorMsg.style.display = 'block';
+          return;
+        }
 
+        // Mostrar estado de carga
+        errorMsg.textContent = '';
+        errorMsg.style.display = 'none';
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+        
+        try {
+          // 1. Autenticar con Firebase Auth con timeout
+          const userCredential = await Promise.race([
+            auth.signInWithEmailAndPassword(email, password),
+            createTimeoutPromise('El servidor no respondió a tiempo. Intenta nuevamente.', 15000)
+          ]);
+          
+          // 2. Verificar que existe en Firestore con timeout
+          const userDoc = await Promise.race([
+            db.collection('usuarios').doc(userCredential.user.uid).get(),
+            createTimeoutPromise('Timeout al obtener datos de usuario', 10000)
+          ]);
+          
+          if (!userDoc.exists) {
+            await auth.signOut();
+            throw new Error('Tu cuenta no está completamente configurada. Contacta al administrador.');
+          }
+          
+          // 3. Verificar que tiene rol asignado
+          const userData = userDoc.data();
+          if (!userData.rol) {
+            throw new Error('Rol no asignado. Contacta al administrador.');
+          }
+          
+          // 4. Forzar actualización del token
+          await userCredential.user.getIdToken(true);
+          
+          // 5. Redirigir según rol
+          const redirectPages = {
+            'admin': 'admin.html',
+            'cocina': 'cocina.html',
+            'pos': 'POS.html'
+          };
+          
+          const redirectTo = redirectPages[userData.rol.toLowerCase()];
+          if (redirectTo) {
+            window.location.href = redirectTo;
+          } else {
+            throw new Error('Rol no reconocido: ' + userData.rol);
+          }
+          
+        } catch (error) {
+          console.error("Error en login:", error);
+          
+          // Mapeo de errores
+          const errorMessages = {
+            'auth/user-not-found': 'Usuario no encontrado',
+            'auth/wrong-password': 'Contraseña incorrecta',
+            'auth/too-many-requests': 'Demasiados intentos. Intenta más tarde',
+            'auth/network-request-failed': 'Error de conexión a internet',
+            'auth/timeout': 'El servidor no respondió a tiempo'
+          };
+          
+          errorMsg.textContent = errorMessages[error.code] || error.message;
+          errorMsg.style.display = 'block';
+          
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = 'Entrar';
+        }
+      });
 
-    <script type="module" src="database.js"></script>
-    <script type="module" src="main.js"></script>
+    } catch (initError) {
+      console.error("Error inicializando Firebase:", initError);
+      document.getElementById('error-msg').textContent = "Error inicializando la aplicación. Recarga la página.";
+      document.getElementById('error-msg').style.display = 'block';
+      document.getElementById('login-btn').disabled = true;
+    }
+  </script>
+  <style>
+    body {
+      background-color: var(--color-fondo);
+      background-image: url('textura-hojas-sutiles.png');
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .login-container {
+      background-color: var(--color-blanco);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,100,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      border: 2px solid var(--color-verde-claro);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-container:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: linear-gradient(to right, var(--color-verde-claro), var(--color-verde-primario), var(--color-verde-claro));
+    }
+
+    .login-container h2 {
+      text-align: center;
+      color: var(--color-verde-oscuro);
+      margin-bottom: 30px;
+      font-size: 28px;
+      padding-top: 10px;
+    }
+
+    .login-container input {
+      display: block;
+      width: 100%;
+      padding: 12px 15px;
+      margin: 15px 0;
+      border: 2px solid var(--color-verde-claro);
+      border-radius: 30px;
+      font-size: 16px;
+      transition: all 0.3s;
+      background-color: var(--color-blanco);
+    }
+
+    .login-container input:focus {
+      border-color: var(--color-verde-primario);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.3);
+    }
+
+    #login-btn {
+      background: linear-gradient(to right, var(--color-verde-primario), var(--color-verde-oscuro));
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 18px;
+      width: 100%;
+      transition: all 0.3s;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #login-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,100,0,0.2);
+    }
+
+    #login-btn:after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255,255,255,0.1);
+      transform: rotate(45deg);
+      transition: all 0.3s;
+    }
+
+    #login-btn:hover:after {
+      left: 100%;
+    }
+
+    #error-msg {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #fff5f5;
+      color: #d32f2f;
+      border: 1px solid #ffcdd2;
+      font-weight: 600;
+    }
+
+    .brand-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .brand-logo i {
+      font-size: 50px;
+      color: var(--color-verde-primario);
+    }
+  </style>
 </body>
 </html>
