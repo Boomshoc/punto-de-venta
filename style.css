@@ -999,4 +999,82 @@ hr {
     padding: 0;
   }
 }
+
+    /* ==================== RESPONSIVE MOBILE FIRST ==================== */
+/* Añade esto AL FINAL de tu archivo style.css actual */
+
+/* Base para móviles (menor a 768px) */
+@media (max-width: 767px) {
+  .container {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  header {
+    flex-direction: column;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .mesa-selector {
+    margin-top: 10px;
+    justify-content: center;
+  }
+
+  .tabs, .admin-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: 5px;
+  }
+
+  .tab, .admin-tab {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .pedidos-container {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-item {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .carrito {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    overflow-y: auto;
+    border-radius: 0;
+    z-index: 1000;
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    padding: 15px;
+  }
+
+  .pedidos-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .menu-item {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Desktop (1024px+) - Estos estilos ya están en tu CSS actual */
+/* No necesitas añadir nada aquí a menos que quieras sobreescribir algo */
+
+    
 }
