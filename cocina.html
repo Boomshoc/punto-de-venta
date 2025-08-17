@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Añade en el head -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Añade este estilo -->
+<style>
+  @media (max-width: 767px) {
+    .filtros {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .filtros select, 
+    .filtros input[type="date"] {
+      width: 100%;
+    }
+  }
+</style>
     <meta charset="UTF-8">
     <title>Cocina - Sistema de Pedidos</title>
     <link rel="stylesheet" href="style.css">
@@ -40,4 +57,5 @@
 
     <script type="module" src="cocina.js"></script>
 </body>
+
 </html>
